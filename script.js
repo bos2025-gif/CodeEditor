@@ -32,6 +32,7 @@ function clearEditors() {
     document.getElementById('output-frame').contentDocument.open();
     document.getElementById('output-frame').contentDocument.write('');
     document.getElementById('output-frame').contentDocument.close();
+    document.getElementById('import-status').textContent = '';
 }
 
 // Fungsi untuk menangani import file
@@ -40,6 +41,17 @@ document.getElementById('file-input').addEventListener('change', function(event)
     const htmlEditor = document.getElementById('html-editor');
     const cssEditor = document.getElementById('css-editor');
     const jsEditor = document.getElementById('js-editor');
+    const importStatus = document.getElementById('import-status');
+
+    if (files.length === 0) {
+        importStatus.textContent = 'No files selected.';
+        importStatus.style.color = '#ef4444';
+        return;
+    }
+
+    let loadedFiles = 0;
+    importStatus.textContent = 'Loading files...';
+    importStatus.style.color = '#f59e0b';
 
     // Loop melalui file yang diunggah
     for (let file of files) {
@@ -56,6 +68,19 @@ document.getElementById('file-input').addEventListener('change', function(event)
             } else if (extension === 'js') {
                 jsEditor.value = content;
             }
+
+            loadedFiles++;
+            if (loadedFiles === files.length) {
+                importStatus.textContent = `${loadedFiles} file(s) loaded successfully!`;
+                importStatus.style.color = '#16a34a';
+                setTimeout(() => {
+                    importStatus.textContent = '';
+                }, 3000);
+            }
+        };
+        reader.onerror = function() {
+            importStatus.textContent = 'Error loading file: ' + file.name;
+            importStatus.style.color = '#ef4444';
         };
         reader.readAsText(file);
     }
